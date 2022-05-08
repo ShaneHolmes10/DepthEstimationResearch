@@ -1,7 +1,7 @@
 
 import cv2
 import numpy as np
-
+import ImageFuncs as imf
 
 def ExtractImageFromDevice(frame, index):
     xValue = int(index*(frame.shape[1]/2))

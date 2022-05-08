@@ -21,6 +21,8 @@ def SuperImposeImages(frame1, frame2):
 # Start a video capture object from the camera device
 cap = cv2.VideoCapture(1)
 
+timer = 0
+count = 0
 while(True):
 
     # Get the frame from the camera device
@@ -30,7 +32,19 @@ while(True):
     frame1 = ExtractImageFromDevice(frame, 1)
     frame2 = ExtractImageFromDevice(frame, 0)
 
+    print("x shift: %s, " % count, end="")
+    xshift = count
+    if timer > 100:
+        count += 1
+    timer += 1
+    frame1 = frame1[144:144+101, 232:232+146] 
+    frame2 = frame2[144:144+101, 232+xshift:232+xshift+146]
+
+    print(imf.CompareImages(frame1, frame2))
+
     frame = SuperImposeImages(frame1, frame2)
+
+
 
     
 

@@ -1,6 +1,7 @@
 
 import cv2
 import numpy as np
+import math
 import ImageFuncs as imf
 
 def ExtractImageFromDevice(frame, index):
@@ -21,6 +22,9 @@ def SuperImposeImages(frame1, frame2):
 # Start a video capture object from the camera device
 cap = cv2.VideoCapture(1)
 
+base = 12
+focus = 302
+
 while(True):
 
     # Get the frame from the camera device
@@ -29,11 +33,23 @@ while(True):
     
     frame1 = ExtractImageFromDevice(frame, 1)
     frame2 = ExtractImageFromDevice(frame, 0)
+    
+    centerMarker0R = (int(frame.shape[1]/2), int(frame.shape[0]/2))
+    centerMarker0L = (int(frame.shape[1]/2), int(frame.shape[0]/2))
+
+    try:
+        centerMarker0R = imf.findArucoMarkers(frame1)[0]
+        centerMarker0L = imf.findArucoMarkers(frame2)[0]
+    except:
+        pass    
 
     frame = SuperImposeImages(frame1, frame2)
 
+    cv2.line(frame, (int(frame.shape[1]/2), int(frame.shape[0]/2)), (int(centerMarker0R[0]), int(centerMarker0R[1])), (255, 255, 0), 2)
+    cv2.line(frame, (int(frame.shape[1]/2), int(frame.shape[0]/2)), (int(centerMarker0L[0]), int(centerMarker0L[1])), (255, 255, 0), 2)
     
-
+    disparity = math.dist(centerMarker0R, centerMarker0L)+0.0001
+    print( base*focus / disparity)
 
     # Display the frame and then wait
     cv2.imshow('frame', frame)

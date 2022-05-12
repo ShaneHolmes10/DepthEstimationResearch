@@ -20,7 +20,7 @@ def SuperImposeImages(frame1, frame2):
     return frame1 + frame2
 
 # Start a video capture object from the camera device
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 
 base = 12
 focus = 302
@@ -34,9 +34,10 @@ while(True):
     frame1 = ExtractImageFromDevice(frame, 1)
     frame2 = ExtractImageFromDevice(frame, 0)
     
-    centerMarker0R = (int(frame.shape[1]/2), int(frame.shape[0]/2))
-    centerMarker0L = (int(frame.shape[1]/2), int(frame.shape[0]/2))
+    centerMarker0R = (int(frame1.shape[1]/2), int(frame1.shape[0]/2))
+    centerMarker0L = (int(frame2.shape[1]/2), int(frame2.shape[0]/2))
 
+    
     try:
         centerMarker0R = imf.findArucoMarkers(frame1)[0]
         centerMarker0L = imf.findArucoMarkers(frame2)[0]
@@ -48,8 +49,12 @@ while(True):
     cv2.line(frame, (int(frame.shape[1]/2), int(frame.shape[0]/2)), (int(centerMarker0R[0]), int(centerMarker0R[1])), (255, 255, 0), 2)
     cv2.line(frame, (int(frame.shape[1]/2), int(frame.shape[0]/2)), (int(centerMarker0L[0]), int(centerMarker0L[1])), (255, 255, 0), 2)
     
+    
     disparity = math.dist(centerMarker0R, centerMarker0L)+0.0001
-    print( base*focus / disparity)
+    depth = base*focus / disparity
+    if depth < 1000:
+        print( base*focus / disparity)
+
 
     # Display the frame and then wait
     cv2.imshow('frame', frame)

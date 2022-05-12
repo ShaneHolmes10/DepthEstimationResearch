@@ -2,6 +2,10 @@
 import cv2
 import numpy as np
 import ImageFuncs as imf
+from matplotlib import pyplot as plt
+import sys
+
+np.set_printoptions(threshold=sys.maxsize)
 
 def ExtractImageFromDevice(frame, index):
     xValue = int(index*(frame.shape[1]/2))
@@ -19,7 +23,7 @@ def SuperImposeImages(frame1, frame2):
     return frame1 + frame2
 
 # Start a video capture object from the camera device
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 
 while(True):
 
@@ -30,14 +34,34 @@ while(True):
     frame1 = ExtractImageFromDevice(frame, 1)
     frame2 = ExtractImageFromDevice(frame, 0)
 
+    #frame1 = frame1[0:15, 0:15]
+    #frame2 = frame2[0:15, 0:15]
+
+    frame1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
+    frame2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
+
+
+    stereo = cv2.StereoBM_create(numDisparities=0, blockSize=21)
+    depth = stereo.compute(frame2, frame1) + 16
+
     frame = SuperImposeImages(frame1, frame2)
 
-    
+    normal = np.zeros((frame.shape[0], frame.shape[1]))
 
+    for x in range(len(depth)):
+        for y in range(len(depth[0])):
+            normal[x][y] = depth[x][y]
 
+    #print(depth[221][509])
+    #print()
+    #print()
     # Display the frame and then wait
-    cv2.imshow('frame', frame)
-    cv2.waitKey(10)
+    cv2.imshow('frame', normal)
+    
+    #plt.imshow(depth)
+
+    #plt.show()
+    cv2.waitKey(100)
 
     # If the window isn't visible i.e. not there then break out of loop
     if(cv2.getWindowProperty('frame', cv2.WND_PROP_VISIBLE) < 1):

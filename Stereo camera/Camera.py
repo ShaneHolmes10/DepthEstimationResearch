@@ -25,6 +25,14 @@ def SuperImposeImages(frame1, frame2):
 # Start a video capture object from the camera device
 cap = cv2.VideoCapture(0)
 
+numDisparities_ = 6*16
+blockSize_ = 5*2 + 5
+minDisparity_ = 0
+
+cv2.namedWindow('disp',cv2.WINDOW_NORMAL)
+cv2.resizeWindow('disp',600,600)
+
+
 while(True):
 
     # Get the frame from the camera device
@@ -41,22 +49,27 @@ while(True):
     frame2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
 
 
-    stereo = cv2.StereoBM_create(numDisparities=0, blockSize=21)
-    depth = stereo.compute(frame2, frame1) + 16
+    stereo = cv2.StereoBM_create(numDisparities=numDisparities_, blockSize=blockSize_)
+    depth = stereo.compute(frame2, frame1)
 
     frame = SuperImposeImages(frame1, frame2)
 
     normal = np.zeros((frame.shape[0], frame.shape[1]))
 
+    depth = depth.astype(np.float32)
+    depth = (depth/16.0 - minDisparity_)/numDisparities_
+
+    '''
     for x in range(len(depth)):
         for y in range(len(depth[0])):
             normal[x][y] = depth[x][y]
+    '''
 
     #print(depth[221][509])
     #print()
     #print()
     # Display the frame and then wait
-    cv2.imshow('frame', normal)
+    cv2.imshow('frame', depth)
     
     #plt.imshow(depth)
 
